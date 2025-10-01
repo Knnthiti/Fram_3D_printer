@@ -18,7 +18,7 @@ def run_detection():
     cap = cv2.VideoCapture(1)
 
     if not cap.isOpened():
-        print("❌ ไม่สามารถเปิดกล้องได้")
+        print("Unable to open camera")
         return
 
     # อ่านเฟรมเดียว
@@ -62,8 +62,8 @@ def run_detection():
 
 # 📌 วนรอบทุกๆ 60 วินาที
 while True:
-    print("🚀 ถ่ายภาพด้วยกล้อง และตรวจจับวัตถุ...")
+    print("photos with a camera")
     run_detection()
 
-    print("⏳ รอ 60 วินาที...")
+    print("wait 60 s...")
     time.sleep(60)
