@@ -65,5 +65,5 @@ while True:
     print("photos with a camera")
     run_detection()
 
-    print("wait 60 s...")
+    print("... wait 60 s ...")
     time.sleep(60)
