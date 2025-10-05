@@ -8,14 +8,18 @@ import requests
 import time
 
 API_KEY = "gl3ye-kMFFW6eRuDp98Y2cyME19SXApyId_Y8QuL_b0"
-OCTOPRINT_URL = "http://192.168.145.103:5000"
+OCTOPRINT_URL = "https://ender1.serveo.net"
 HOST_URL = OCTOPRINT_URL
 headers = {"Content-Type": "application/json", "X-Api-Key": API_KEY}
 
 clear_gcode = [
-    "G91", "G1 Z10", "G90",
-    "G1 X110 Y218 F3000", "G1 Z1",
-    "G90", "G1 X110 Y1 Z1 F2400"
+    "G91",
+    "G1 Z10",
+    "G90",
+    "G1 X110 Y218 F3000",
+    "G1 Z1",
+    "G90",
+    "G1 X110 Y1 Z1 F2400",
 ]
 
 
@@ -34,7 +38,9 @@ def cancel_job():
 
 def send_gcode(commands):
     data = {"commands": commands}
-    return requests.post(f"{OCTOPRINT_URL}/api/printer/command", headers=headers, json=data)
+    return requests.post(
+        f"{OCTOPRINT_URL}/api/printer/command", headers=headers, json=data
+    )
 
 
 class ThreeDPrint(Node):
@@ -42,42 +48,37 @@ class ThreeDPrint(Node):
         super().__init__("three_d_print")
         self.create_subscription(Int32, "detection_result", self.cv_callback, 10)
         self.create_subscription(Int32, "test_input", self.test_callback, 10)
+        self.create_subscription(Int32, "api_input", self.api_callback, 10)
         self.cv_value = 0
         self.test_value = 0
+        self.api_value = 0
 
     def cv_callback(self, msg: Int32):
         self.cv_value = msg.data
         self.get_logger().info(f"[ThreeDPrint] Received CV={msg.data}")
-        self.take_action()
+        if self.cv_value == 1:
+            cancel_job()
+            time.sleep(60)  # รอ 1 นาที (20*60 วินาที)
+            send_gcode(clear_gcode)
+            set_active(False)
 
     def test_callback(self, msg: Int32):
         self.test_value = msg.data
         self.get_logger().info(f"[ThreeDPrint] Received Test={msg.data}")
-        self.take_action()
+        if self.test_value == 1:
+            cancel_job()
+            time.sleep(5)  # รอ 5 วินาที
+            send_gcode(clear_gcode)
+            set_active(False)
 
-    def take_action(self):
-        if self.cv_value == 1:
-           try:
-              cancel_job()
-              time.sleep(60)  # รอ 1 นาที (20*60 วินาที)
-              send_gcode(clear_gcode)
-              set_active(False)
-              self.get_logger().info("Executed cancel + clear + restart sequence (cv_value)")
-           except Exception as e:
-              self.get_logger().error(f"Printer action failed (cv_value): {e}")
-
-        elif self.test_value == 1:
-            try:
-               cancel_job()
-               time.sleep(5)  # รอ 5 วินาที
-               send_gcode(clear_gcode)
-               set_active(False)
-               self.get_logger().info("Executed cancel + clear + restart sequence (test_value)")
-            except Exception as e:
-               self.get_logger().error(f"Printer action failed (test_value): {e}")
-
-        else:
-            self.get_logger().info("No action needed (all good).")
+    def api_callback(self, msg: Int32):
+        self.api_value = msg.data
+        self.get_logger().info(f"[ThreeDPrint] Received API={msg.data}")
+        if self.api_value == 1:
+            cancel_job()
+            time.sleep(5)  # รอ 5 วินาที
+            send_gcode(clear_gcode)
+            set_active(False)
 
 
 def main(args=None):

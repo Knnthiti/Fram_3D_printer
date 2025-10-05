@@ -5,13 +5,17 @@ import requests
 
 # See https://docs.octoprint.org/en/master/api/general.html#authorization for
 # where to get this value
-UI_API_KEY = "j00_vQA6U_kk0SEQzcSo_4fXzJZIZikFaX4FDKIWRkw"
+
+# UI_API_KEY = "j00_vQA6U_kk0SEQzcSo_4fXzJZIZikFaX4FDKIWRkw"
+UI_API_KEY = "gl3ye-kMFFW6eRuDp98Y2cyME19SXApyId_Y8QuL_b0"
+
 
 # Change this to match your printer
-HOST_URL = "http://192.168.214.181:5002"
+HOST_URL = "http://192.168.18.103:5000"
 
 
 # headers = {"X-Api-Key": API_KEY, "Content-Type": "application/json"}
+
 
 def set_active(active):
     return requests.post(
@@ -43,11 +47,11 @@ def get_state():
 
 
 if __name__ == "__main__":
-    print("👉 Start managing queue")
-    print(set_active(True))
+    # print("👉 Start managing queue")
+    # print(set_active(True))
 
-    # print("👉 Stop managing queue")
-    # print(set_active(False))
+    print("👉 Stop managing queue")
+    print(set_active(False))
 
     print("👉 Check state")
     print(get_state())

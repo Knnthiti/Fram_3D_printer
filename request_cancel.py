@@ -1,16 +1,11 @@
 import requests
 
-API_KEY = "8AvRbX9eTN9YZyzesD6CQJG9hJDRnvJzz8J8ZaXmrQE"   # ใส่ API key ของคุณ
+API_KEY = "gl3ye-kMFFW6eRuDp98Y2cyME19SXApyId_Y8QuL_b0"  # ใส่ API key ของคุณ
 OCTOPRINT_URL = "http://192.168.214.181:5002"  # เปลี่ยนเป็น URL ของ OctoPrint
 
-headers = {
-    "Content-Type": "application/json",
-    "X-Api-Key": API_KEY
-}
+headers = {"Content-Type": "application/json", "X-Api-Key": API_KEY}
 
-data = {
-    "command": "cancel"
-}
+data = {"command": "cancel"}
 
 response = requests.post(f"{OCTOPRINT_URL}/api/job", headers=headers, json=data)
 
