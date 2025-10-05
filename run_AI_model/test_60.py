@@ -15,7 +15,7 @@ spaghettis = 0
 
 def run_detection():
     # เปิดกล้อง (0 หรือ 1 ตามกล้องที่คุณใช้)
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
         print("Unable to open camera")
