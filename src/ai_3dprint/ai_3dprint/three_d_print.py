@@ -58,7 +58,7 @@ class ThreeDPrint(Node):
         self.get_logger().info(f"[ThreeDPrint] Received CV={msg.data}")
         if self.cv_value == 1:
             cancel_job()
-            time.sleep(60)  # รอ 1 นาที (20*60 วินาที)
+            time.sleep(10)  # รอ 1 นาที (20*60 วินาที)
             send_gcode(clear_gcode)
             set_active(False)
 
