@@ -10,6 +10,7 @@ setup.py
 ../../build/ai_3dprint/ai_3dprint.egg-info/top_level.txt
 ../../build/ai_3dprint/ai_3dprint.egg-info/zip-safe
 ai_3dprint/__init__.py
+ai_3dprint/api_web.py
 ai_3dprint/detection.py
 ai_3dprint/test.py
 ai_3dprint/three_d_print.py

@@ -21,16 +21,12 @@ setup(
     maintainer_email='knn@todo.todo',
     description='TODO: Package description',
     license='Apache-2.0',
-    extras_require={
-        'test': [
-            'pytest',
-        ],
-    },
     entry_points={
-        "console_scripts": [
-            "detection = ai_3dprint.detection:main",
-            "test = ai_3dprint.test:main",
-            "three_d_print = ai_3dprint.three_d_print:main",
+        'console_scripts': [
+            'detection = ai_3dprint.detection:main',
+            'test = ai_3dprint.test:main',
+            'three_d_print = ai_3dprint.three_d_print:main',
+            'api_web = ai_3dprint.api_web:main',
         ],
     },
 )
