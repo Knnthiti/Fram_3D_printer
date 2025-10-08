@@ -7,7 +7,7 @@ from std_msgs.msg import Int32
 import requests
 import time
 
-API_KEY = "gl3ye-kMFFW6eRuDp98Y2cyME19SXApyId_Y8QuL_b0"
+API_KEY = "QM7KcrPnZRsJtVCe6KVE5i2LrL6mKRc-CsGiE5jnYH4"
 OCTOPRINT_URL = "https://ender1.serveo.net"
 HOST_URL = OCTOPRINT_URL
 headers = {"Content-Type": "application/json", "X-Api-Key": API_KEY}
@@ -22,8 +22,14 @@ clear_gcode = [
     "G1 X110 Y1 Z1 F2400",
 ]
 
+cooldown_gcode = [
+        "M104 S0",  # Turn off hotend heater
+        "M140 S0",  # Turn off bed heater
+        "M107",     # Turn off part cooling fan
+    ]
 
 def set_active(active: bool):
+    """เปิดหรือปิด continuous print mode"""
     return requests.post(
         f"{HOST_URL}/plugin/continuousprint/set_active",
         headers={"X-Api-Key": API_KEY},
@@ -32,15 +38,39 @@ def set_active(active: bool):
 
 
 def cancel_job():
+    """ยกเลิกงานปัจจุบัน"""
     data = {"command": "cancel"}
     return requests.post(f"{OCTOPRINT_URL}/api/job", headers=headers, json=data)
 
 
 def send_gcode(commands):
+    """ส่งคำสั่ง G-code หลายบรรทัด"""
     data = {"commands": commands}
     return requests.post(
         f"{OCTOPRINT_URL}/api/printer/command", headers=headers, json=data
     )
+
+
+def check_printer_active():
+    """ตรวจสอบสถานะ active จาก OctoPrint continuous print plugin"""
+    try:
+        resp = requests.get(
+            f"{HOST_URL}/plugin/continuousprint/state/get",
+            headers={"X-Api-Key": API_KEY},
+            timeout=5,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            active = data.get("active", False)
+            print(f"[Printer Status] active={active}")
+            return active
+        else:
+            print(f"[WARN] Printer status check failed ({resp.status_code}): {resp.text}")
+            return False
+    except requests.RequestException as e:
+        print(f"[ERROR] Failed to connect to printer API: {e}")
+        return False
+
 
 
 class ThreeDPrint(Node):
@@ -53,32 +83,35 @@ class ThreeDPrint(Node):
         self.test_value = 0
         self.api_value = 0
 
+    def perform_clear_sequence(self):
+        """ทำการ clear_gcode เฉพาะเมื่อ active=True"""
+        if check_printer_active():
+            self.get_logger().info("Printer active -> executing clear sequence.")
+            cancel_job()
+            send_gcode(cooldown_gcode)
+            time.sleep(1200)
+            send_gcode(clear_gcode)
+            set_active(False)
+        else:
+            self.get_logger().info("Printer inactive -> skipping clear sequence.")
+
     def cv_callback(self, msg: Int32):
         self.cv_value = msg.data
         self.get_logger().info(f"[ThreeDPrint] Received CV={msg.data}")
         if self.cv_value == 1:
-            cancel_job()
-            time.sleep(10)  # รอ 1 นาที (20*60 วินาที)
-            send_gcode(clear_gcode)
-            set_active(False)
+            self.perform_clear_sequence()
 
     def test_callback(self, msg: Int32):
         self.test_value = msg.data
         self.get_logger().info(f"[ThreeDPrint] Received Test={msg.data}")
         if self.test_value == 1:
-            cancel_job()
-            time.sleep(5)  # รอ 5 วินาที
-            send_gcode(clear_gcode)
-            set_active(False)
+            self.perform_clear_sequence()
 
     def api_callback(self, msg: Int32):
         self.api_value = msg.data
         self.get_logger().info(f"[ThreeDPrint] Received API={msg.data}")
         if self.api_value == 1:
-            cancel_job()
-            time.sleep(5)  # รอ 5 วินาที
-            send_gcode(clear_gcode)
-            set_active(False)
+            self.perform_clear_sequence()
 
 
 def main(args=None):
@@ -91,3 +124,4 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
+
