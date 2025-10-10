@@ -11,7 +11,7 @@ UI_API_KEY = "gl3ye-kMFFW6eRuDp98Y2cyME19SXApyId_Y8QuL_b0"
 
 
 # Change this to match your printer
-HOST_URL = "http://192.168.18.103:5000"
+HOST_URL = "https://ender1.serveo.net"
 
 
 # headers = {"X-Api-Key": API_KEY, "Content-Type": "application/json"}
@@ -50,8 +50,8 @@ if __name__ == "__main__":
     # print("👉 Start managing queue")
     # print(set_active(True))
 
-    print("👉 Stop managing queue")
-    print(set_active(False))
+    # print("👉 Stop managing queue")
+    # print(set_active(False))
 
     print("👉 Check state")
     print(get_state())

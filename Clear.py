@@ -19,7 +19,6 @@ last_remaining = 0
 clear_gcode = [
     "G91",
     "G1 Z10",
-    "G90",
     "G1 X110 Y218 F3000",
     "G1 Z1",
     "G90",
