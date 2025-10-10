@@ -8,25 +8,26 @@ import requests
 import time
 
 API_KEY = "QM7KcrPnZRsJtVCe6KVE5i2LrL6mKRc-CsGiE5jnYH4"
-OCTOPRINT_URL = "https://ender1.serveo.net"
+OCTOPRINT_URL = "http://localhost:5000"
 HOST_URL = OCTOPRINT_URL
 headers = {"Content-Type": "application/json", "X-Api-Key": API_KEY}
 
 clear_gcode = [
-    "G91",
-    "G1 Z10",
-    "G90",
-    "G1 X110 Y218 F3000",
-    "G1 Z1",
-    "G90",
-    "G1 X110 Y1 Z1 F2400",
+    "G90",                        # ใช้ absolute positioning
+    "G1 Z0.3 F300",               # ลดหัวลงใกล้เตียง
+    "G1 X110 Y1 F1500",           # ลากหัวไปข้างหน้าเล็กน้อยเพื่อเคลียร์โมเดล
 ]
 
 cooldown_gcode = [
-        "M104 S0",  # Turn off hotend heater
-        "M140 S0",  # Turn off bed heater
-        "M107",     # Turn off part cooling fan
-    ]
+    "M104 S0",     # ปิด hotend heater
+    "M140 S0",     # ปิด bed heater
+    "M107",        # ปิดพัดลม
+    "G91",         # relative positioning
+    "G1 Z10 F600", # ยกหัวขึ้น 10mm จากตำแหน่งปัจจุบัน
+    "G90",         # กลับไป absolute positioning
+    "G1 X110 Y218 F3000", # ไปที่ตำแหน่งพัก
+    "G1 Z0 F600",   # เลื่อนหัวลงถึง bed (Z=0)
+]
 
 def set_active(active: bool):
     """เปิดหรือปิด continuous print mode"""
@@ -89,7 +90,7 @@ class ThreeDPrint(Node):
             self.get_logger().info("Printer active -> executing clear sequence.")
             cancel_job()
             send_gcode(cooldown_gcode)
-            time.sleep(1200)
+            time.sleep(900)
             send_gcode(clear_gcode)
             set_active(False)
         else:
